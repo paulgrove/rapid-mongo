@@ -1,0 +1,24 @@
+{
+  "name": "mongo-quick",
+  "version": "0.0.1",
+  "description": "Download and run mongodb on a non-standard port",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/og01/mongo-quick"
+  },
+  "keywords": [
+    "mongo",
+    "node",
+    "javascript"
+  ],
+  "author": "Paul Grove",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/og01/mongo-quick/issues"
+  },
+  "homepage": "https://github.com/og01/mongo-quick"
+}
