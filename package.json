@@ -1,5 +1,5 @@
 {
-  "name": "mongo-quick",
+  "name": "rapid-mongo",
   "version": "0.0.1",
   "description": "Download and run mongodb on a non-standard port",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/og01/mongo-quick"
+    "url": "https://github.com/og01/rapid-mongo"
   },
   "keywords": [
     "mongo",
@@ -18,9 +18,9 @@
   "author": "Paul Grove <paul.a.grove@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/og01/mongo-quick/issues"
+    "url": "https://github.com/og01/rapid-mongo/issues"
   },
-  "homepage": "https://github.com/og01/mongo-quick",
+  "homepage": "https://github.com/og01/rapid-mongo",
   "dependencies": {
     "bluebird": "^3.3.4",
     "cross-spawn-async": "^2.2.0",

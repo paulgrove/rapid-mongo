@@ -10,13 +10,12 @@ var _ = require("lodash"),
 	util = require('util'),
 	spawn = require("cross-spawn-async");
 
-function MongoQuick(options) {
+function RapidMango(options) {
 	if (!options.installPath)
-		throw new Error("MongoQuick requires option installPath");
+		throw new Error("RapidMango requires option installPath");
 	if (!options.version)
-		throw new Error("MongoQuick requires option version");
-	if (!options.dataPath)
-		options.dataPath = path.resolve(options.installPath, "data");
+		throw new Error("RapidMango requires option version");
+	options.dataPath |= path.resolve(options.installPath, "data");
 	options.logPath |= path.resolve(options.installPath, "mongod.log");
 	options.startPort |= 6000;
 	options.endPort |= 6999;
@@ -24,9 +23,9 @@ function MongoQuick(options) {
 	return this;
 }
 
-util.inherits(MongoQuick, EventEmitter);
+util.inherits(RapidMango, EventEmitter);
 
-MongoQuick.prototype.start = function start() {
+RapidMango.prototype.start = function start() {
 	var self = this;
 	return Promise.all([
 		mongodbDownload({
@@ -92,4 +91,4 @@ MongoQuick.prototype.start = function start() {
 	});
 }
 
-module.exports = MongoQuick;
+module.exports = RapidMango;
