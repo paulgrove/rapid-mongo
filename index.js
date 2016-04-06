@@ -58,8 +58,7 @@ MongoQuick.prototype.start = function start() {
 				path.resolve(self.options.installPath, "bin", "mongod"),
 				[
 					"--port", port,
-					"--dbpath", self.options.dataPath,
-					"--balls"
+					"--dbpath", self.options.dataPath
 				], {
 					stdio: 'pipe'
 				}
