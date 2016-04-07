@@ -35,7 +35,6 @@ RapidMango.prototype.start = function start() {
 			http_opts: self.options.http_opts
 		}),
 		fs.mkdirpAsync(path.resolve(self.options.installPath)),
-		fs.mkdirpAsync(path.resolve(self.options.args["--dbpath"]))
 	]).then(function(results) {
 		var archiveFilename = results[0],
 			archiveType;
@@ -51,9 +50,10 @@ RapidMango.prototype.start = function start() {
 				strip: 1
 			}));
 		Promise.promisifyAll(decomp);
-
-		return self.options.port ||
-			findPort(self.options.startPort, self.options.endPort);
+		return decomp.runAsync().then(function () {
+			return self.options.port ||
+				findPort(self.options.startPort, self.options.endPort);
+		});
 	}).then(function (port) {
 		var args = [];
 		self.options.args["--port"] =
