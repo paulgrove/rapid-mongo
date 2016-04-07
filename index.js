@@ -15,10 +15,12 @@ function RapidMango(options) {
 		throw new Error("RapidMango requires option installPath");
 	if (!options.version)
 		throw new Error("RapidMango requires option version");
-	options.dataPath |= path.resolve(options.installPath, "data");
-	options.logPath |= path.resolve(options.installPath, "mongod.log");
-	options.startPort |= 6000;
-	options.endPort |= 6999;
+	options.dbpath = options.dbpath || path.resolve(options.installPath, "data");
+	options.startPort = options.startPort || 6000;
+	options.endPort = options.endPort || 6999;
+	options.args = options.args || {};
+	options.args["--dbpath"] = options.args["--dbpath"] != undefined ?
+		options.args["--dbpath"] : options.dbpath;
 	this.options = options;
 	return this;
 }
@@ -33,9 +35,10 @@ RapidMango.prototype.start = function start() {
 			http_opts: self.options.http_opts
 		}),
 		fs.mkdirpAsync(path.resolve(self.options.installPath)),
-		fs.mkdirpAsync(path.resolve(self.options.dataPath))
+		fs.mkdirpAsync(path.resolve(self.options.args["--dbpath"]))
 	]).then(function(results) {
-		var archiveFilename = results[0];
+		var archiveFilename = results[0],
+			archiveType;
 		if (/\.tgz$/.test(archiveFilename))
 			archiveType = "targz";
 		if (/\.zip/.test(archiveFilename))
@@ -52,36 +55,49 @@ RapidMango.prototype.start = function start() {
 		return self.options.port ||
 			findPort(self.options.startPort, self.options.endPort);
 	}).then(function (port) {
+		var args = [];
+		self.options.args["--port"] =
+			self.options.args["--port"] !== undefined ?
+				self.options.args["--port"] : port;
+		_.map(self.options.args, function (val, key) {
+			if (val === true) {
+				args.push(key);
+			} else if (val !== false) {
+				args.push(key);
+				args.push(val);
+			}
+		});
 		var promise = new Promise(function (resolve, reject) {
-			var process = spawn(
-				path.resolve(self.options.installPath, "bin", "mongod"),
-				[
-					"--port", port,
-					"--dbpath", self.options.dataPath
-				], {
-					stdio: 'pipe'
-				}
-			);
-			process.on('error', function (code, signal) {
-				if (promise.isPending)
-					reject(new Error("Failed to start mongo, process exited with code " + code));
+			var cmd = path.resolve(self.options.installPath, "bin", "mongod" + (
+					process.platform === "win32" ? ".exe" : ""
+				)), child;
+
+			self.emit("debug", "spawning: ", cmd, args);
+			child = spawn(cmd, args, {
+				stdio: 'pipe'
 			});
-			process.on('exit', function (code, signal) {
+			child.on('error', function (code, signal) {
 				if (promise.isPending)
-					reject(new Error("Mongo process exited with code " + code));
+					reject(new Error("Failed to start mongo, child exited with code " + code));
+				self.emit('error', code, signal);
+			});
+			child.on('exit', function (code, signal) {
+				if (promise.isPending)
+					reject(new Error("Mongo child exited with code " + code));
+				self.emit('error', code, signal);
 			});
 			readline.createInterface({
-				input: process.stdout,
+				input: child.stdout,
 				terminal: false
 			}).on("line", function (line) {
 				if (promise.isPending) {
 					if (/waiting for connections/.test(line))
-						resolve();
+						resolve(self.options.args["--port"]);
 				}
 				self.emit("stdout", line);
 			});
 			readline.createInterface({
-				input: process.stderr,
+				input: child.stderr,
 				terminal: false
 			}).on("line", function (line) {
 				self.emit("stderr", line);
