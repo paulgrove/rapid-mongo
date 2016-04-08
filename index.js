@@ -196,8 +196,11 @@ RapidMango.prototype.download = function download() {
 					response.pipe(file);
 					file.on('finish', function() {
 						file.close(function() {
-							fs.renameSync(temp_download_location, download_location);
-							resolve(download_location);
+							fs.renameAsync(temp_download_location, download_location).then(function () {
+								resolve(download_location);
+							}).catch(function () {
+								reject("Failed to rename temp file");
+							});
 						});
 					});
 
