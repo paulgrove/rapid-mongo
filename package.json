@@ -1,6 +1,6 @@
 {
   "name": "rapid-mongo",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Download and run mongodb on a non-standard port",
   "main": "index.js",
   "scripts": {
