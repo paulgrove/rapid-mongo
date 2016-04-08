@@ -1,5 +1,5 @@
 # rapid-mongo
-MongoDB for the lazy - Download and unpack run mongodb inside your project.
+MongoDB for the lazy - Download, unpack and run mongodb from your program.
 
 Supports most Linux, OSX and Win32.
 
@@ -12,14 +12,14 @@ Supports most Linux, OSX and Win32.
 var RapidMongo = require('rapid-mongo');
 
 (new RapidMongo()).start().then(function (port) {
-	console.log("Hurray! mongodb is downloaded, installed and running on port " + port);
+	console.log("Hurray! mongodb is now installed and running on port " + port);
 	console.log("And it will stop running when this script ends");
 }).catch(console.error);
 
 ```
 
-Download can take a while, its better if you get some output so you can see
-progress, more advanced example:
+Download can take a while, the following example outputs the progress and the
+output from mongod:
 
 *longer example*
 
@@ -30,13 +30,20 @@ var RapidMongo = require('rapid-mongo'),
 		installPath: "./mongo",
 		version: "3.2.0"
 	});
-// Print *everything* to stdout/stderr
+
+// verbose event for rapid-json messages
 rapid.on("verbose", console.log);
+
+// stdout/stderr events for mongod process output
 rapid.on("stdout", console.log);
 rapid.on("stderr", console.error);
+
+// progress event for mongod download progress
 rapid.on("progress", function (percent, mb) {
 	console.log("Download progress: " + percent + "% " + mb + "MB");
 });
+
+// Start MongoDB
 rapid.start().then(function (port) {
 	console.log("Mongo is running on 127.0.0.1:" + port);
 }).catch(console.error);
