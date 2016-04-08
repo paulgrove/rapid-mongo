@@ -3,17 +3,39 @@ MongoDB for the impatient - Download and run mongodb from nodejs
 
 ## Synopsis
 
+*short example*
+
 ```javascript
+
+var RapidMongo = require('rapid-mongo');
+
+(new RapidMongo()).start().then(function (port) {
+	console.log("Hurray! mongodb is downloaded, installed and running on port " + port);
+	console.log("And it will stop running when this script ends");
+}).catch(console.error);
+
+```
+
+*longer example*
+
+```javascript
+
 var RapidMongo = require('rapid-mongo'),
 	rapid = new RapidMongo({
 		installPath: "./mongo",
 		version: "3.2.0"
 	});
+// Print *everything* to stdout/stderr
+rapid.on("verbose", console.log);
 rapid.on("stdout", console.log);
 rapid.on("stderr", console.error);
+rapid.on("progress", function (percent, mb) {
+	console.log("Download progress: " + percent + "% " + mb + "MB");
+});
 rapid.start().then(function (port) {
-	console.log("Mongo is running on 127.0.0.1:"+port);
+	console.log("Mongo is running on 127.0.0.1:" + port);
 }).catch(console.error);
+
 ```
 
 ## Description
@@ -28,14 +50,14 @@ The `mongod` process will end when node exits.
 
 `RapidMongo` is constructed with an Object containing the following options.
 
-### installPath - Required
+### installPath
 
-`installPath` - where mongodb should be installed.  It is required.
+`installPath` - where mongodb should be installed.  Optional, defaults to
+`<parent script dir>/mongo`
 
-### version - Required
+### version
 
-`version` - The version of mongodb to download, OS and architechture is
-auto detected, simply supply the version, eg: `"3.2.0"`.
+`version` - The version of mongodb to download, defaults to `"3.2.0"`.
 
 ### dbpath
 
@@ -90,6 +112,35 @@ override these values then use either the `dbpath` and `port` options to the
 constructor, or use the `args` values `--dbpath` and `--port`.  If you wish to
 disable these options entirely then set `--dbpath` or `--port` to `false`.
 
+### arch
+
+Set `arch` to override the detected architecture, options: `ia32` or `x64`.
+
+### platorm
+
+Set `platorm` to override the detected platform, options: `win32`, `darwin`,
+`osx`, `linux` or `elementary OS`.
+
+### httpOpts
+
+Options to pass to http library, example:
+
+```javascript
+httpOpts: {
+	agent: new https_proxy_agent("https://127.0.0.1:8080")
+}
+```
+
+## download()
+
+Optionally call `download()` to download mongo.  No need to call this function
+directly, just call `start()`.
+
+## install()
+
+Optionally call `install()` to download and unpack mongo without running.  This
+is called by `start()` so usually there is no reason to call this method.
+
 ## start()
 
 After constructing a `RapidMongo` object using the options above, you can
@@ -105,10 +156,21 @@ rapid.start().then(function (port) {
 }).catch(console.error);
 ```
 
+After successful installation, the mongo archive will automaticly be removed.
+
 ## Events
 
 `RapidMongo` extends the `EventEmitter` class.  The following events are
 available from the `.on()` methods.
+
+### verbose
+
+Verbose messages from `rapid-mongo`.  Use This to find out what `rapid-mongo`
+is currently doing.
+
+### progress
+
+Used during download to indicate progress, `function(percent, mb)`.
 
 ### stdout
 
@@ -122,10 +184,6 @@ This event fires for each line from `mongod`'s stderr.
 ### debug
 
 This event fires for any debugging inside the `rapid-mongo` module.
-
-### error
-
-This event fires if mongod fails to start.
 
 ### exit
 
@@ -144,8 +202,8 @@ This module is simpler and only provides the programic interface, it does not
 by default fork and detach the mongod process meaning that `mongod` will end
 when your program does.
 
-I did however use the module `mongodb-download` in `rapid-mongo`, saving me
-a great deal of effort.
+I used code modified from `mongodb-download` to determine and download the
+correct mongo archive.
 
 If you are looking for a module to simply download mongodb, then look at
 `mongodb-download`.
