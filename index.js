@@ -326,6 +326,15 @@ RapidMango.prototype.start = function start() {
 			}).on("line", function (line) {
 				self.emit("stderr", line);
 			});
+			// tie process, if parent dies, kill child.
+			// I hate this hack
+			spawn(process.execPath, [
+					path.resolve(__dirname, "tie-process.js"),
+					process.pid,
+					child.pid
+			], {
+				stdio: 'ignore'
+			});
 		});
 		return promise;
 	});
