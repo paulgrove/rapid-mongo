@@ -1,5 +1,5 @@
 # rapid-mongo
-MongoDB for the impatient - Download and run mongodb from nodejs
+MongoDB for the lazy - Download and unpack run mongodb inside your project.
 
 ## Synopsis
 
@@ -43,11 +43,17 @@ rapid.start().then(function (port) {
 
 ## Description
 
+Designed for rapid development, proof of concept, and smaller projects.
+
 `rapid-mongo` is a module for the automatic download, unpacking and running of
 mondodb directly from your program.  If no port is specified `rapid-mongo` will
 pick an available port from a range.
 
 The `mongod` process will end when node exits.
+
+Unfortunately it pains me to say, I have had to resort to using a watcher
+process, mongodb will be killed by `tie-process.js` once your parent process
+has ended.
 
 ## Options
 
@@ -64,7 +70,7 @@ The `mongod` process will end when node exits.
 
 ### dbpath
 
-`data` - The location for `mongod` to store the database.  defaults to the
+`data` - The location for `mongod` to store the database.  Defaults to the
 `installPath + "/data"`.  This parameter is optional.
 
 ### port
@@ -80,19 +86,19 @@ port to use.
 
 ### endPort
 
-`endPort` - If `port` is not specifed then search until this port for a free
+`endPort` - If `port` is not specified then search until this port for a free
 port to use.
 
 ### args
 
-`args` is an optional parameter to pass arbitary options to the `mongod`
+`args` is an optional parameter to pass arbitrary options to the `mongod`
 process.
 
 This option should be an object with command line arguments supplied with the
 key as the flag and the value as the argument value, use the value `true` to
 enable a flag, and `false` to disable a flag.
 
-example:
+Example:
 
 ```javascript
 var RapidMongo = require('rapid-mongo'),
@@ -106,11 +112,11 @@ var RapidMongo = require('rapid-mongo'),
 	});
 ```
 
-In the the arguments added to mongod would be:
+In the arguments added to mongod would be:
 
 `--upgrade --config ./config.conf`
 
-The args `--dbpath` and `--port` are provided automaticly.  If you want to
+The args `--dbpath` and `--port` are provided automatically.  If you want to
 override these values then use either the `dbpath` and `port` options to the
 constructor, or use the `args` values `--dbpath` and `--port`.  If you wish to
 disable these options entirely then set `--dbpath` or `--port` to `false`.
@@ -151,7 +157,7 @@ After constructing a `RapidMongo` object using the options above, you can
 to the port used by `mongod`.  If `mongod` fails to start then the promise will
 be rejected with the error.
 
-example:
+Example:
 
 ```javascript
 rapid.start().then(function (port) {
@@ -159,7 +165,7 @@ rapid.start().then(function (port) {
 }).catch(console.error);
 ```
 
-After successful installation, the mongo archive will automaticly be removed.
+After successful installation, the mongo archive will automatically be removed.
 
 ## Events
 
@@ -195,15 +201,13 @@ This event fires when the mongod process exits.
 ## Notes on Other Modules
 
 I looked for other modules with similar functionality before writing this
-module, and I had found `mongodb-prebuilt`.  Unfortunatly at the time of writing
+module, and I had found `mongodb-prebuilt`.  Unfortunately at the time of writing
 `mongo-prebuilt` was not fully functional.  Additionally its focus was on
-command line access via the shell, although it has a programic interface
-I was not able to get it to work correctly, and it wanted to fork and detatch
+command line access via the shell, although it has a programmable interface
+I was not able to get it to work correctly, and it wanted to fork and detach
 the mongod process.
 
-This module is simpler and only provides the programic interface, it does not
-by default fork and detach the mongod process meaning that `mongod` will end
-when your program does.
+This module is simpler and only provides the programmable interface.
 
 I used code modified from `mongodb-download` to determine and download the
 correct mongo archive.
@@ -211,8 +215,13 @@ correct mongo archive.
 If you are looking for a module to simply download mongodb, then look at
 `mongodb-download`.
 
+## Node support
+
+This module was developed on node `v5.10.0` compatibility with older versions
+of node is unknown, however few if any ES6 features were used.
+
 ## Notes on Cross-Platform Compatibility
 
-Effort has been made to support Windows and Mac OS, but currently only linux
+Effort has been made to support Windows and Mac OS, but currently only Linux
 has been tested.  This early release is made out of requirement, and a future
 update will confirm support for other platforms.
