@@ -55,7 +55,7 @@ rapid.start().then(function (port) {
 Designed for rapid development, proof of concept, and smaller projects.
 
 `rapid-mongo` is a module for the automatic download, unpacking and running of
-mondodb directly from your program.  If no port is specified `rapid-mongo` will
+mongodb directly from your program.  If no port is specified `rapid-mongo` will
 pick an available port from a range.
 
 The `mongod` process will end when node exits.
