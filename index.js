@@ -160,15 +160,15 @@ RapidMango.prototype.download = function download() {
 		dl_uri += "/" + name;
 		self.emit("verbose", "Downloading: %s", dl_uri);
 
-		var temp_dir = self.options.download_dir || os.tmpdir(),
-			download_dir = path.resolve(temp_dir, 'mongodb-download');
+		var temp_dir = self.options.downloadDir || os.tmpdir(),
+			downloadDir = path.resolve(temp_dir, 'mongodb-download');
 
-		return fs.mkdirpAsync(download_dir).then(function () {
+		return fs.mkdirpAsync(downloadDir).then(function () {
 			return new Promise(function (resolve, reject) {
 				self.emit("debug", "download directory: %s", temp_dir);
-				var download_location = path.resolve(download_dir, name);
+				var download_location = path.resolve(downloadDir, name);
 				
-				var temp_download_location = path.resolve(download_dir, name + ".in_progress");
+				var temp_download_location = path.resolve(downloadDir, name + ".in_progress");
 				self.emit("debug", "download complete path: %s", download_location);
 
 				try {
@@ -180,15 +180,15 @@ RapidMango.prototype.download = function download() {
 				}
 
 				var file = fs.createWriteStream(temp_download_location),
-					http_opts = self.options.http_opts || {},
+					httpOpts = self.options.httpOpts || {},
 					download_url = url.parse(dl_uri);
 
-				http_opts.protocol = download_url.protocol;
-				http_opts.hostname = download_url.hostname;
-				http_opts.path = download_url.path;
+				httpOpts.protocol = download_url.protocol;
+				httpOpts.hostname = download_url.hostname;
+				httpOpts.path = download_url.path;
 
-				self.emit("debug", "http self.options:", http_opts);
-				var request = http.get(http_opts, function(response) {
+				self.emit("debug", "http self.options:", httpOpts);
+				var request = http.get(httpOpts, function(response) {
 					var cur = 0,
 						len = parseInt(response.headers['content-length'], 10),
 						total = len / 1048576;
