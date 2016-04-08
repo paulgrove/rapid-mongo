@@ -16,6 +16,9 @@ var RapidMongo = require('rapid-mongo');
 
 ```
 
+Download can take a while, its better if you get some output so you can see
+progress, more advanced example:
+
 *longer example*
 
 ```javascript
