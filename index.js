@@ -11,7 +11,7 @@ var _ = require("lodash"),
 	readline = require('readline'),
 	EventEmitter = require('events'),
 	util = require('util'),
-	spawn = require("cross-spawn-async"),
+	spawn = require('child_process').spawn,
 	DOWNLOAD_URI = "https://fastdl.mongodb.org";
 
 RapidMango.prototype.download = function download() {
