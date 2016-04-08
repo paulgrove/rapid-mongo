@@ -1,6 +1,8 @@
 # rapid-mongo
 MongoDB for the lazy - Download and unpack run mongodb inside your project.
 
+Supports most Linux, OSX and Win32.
+
 ## Synopsis
 
 *short example*
@@ -222,6 +224,4 @@ of node is unknown, however few if any ES6 features were used.
 
 ## Notes on Cross-Platform Compatibility
 
-Effort has been made to support Windows and Mac OS, but currently only Linux
-has been tested.  This early release is made out of requirement, and a future
-update will confirm support for other platforms.
+Known working on Ubuntu and most Linux, OSX, Windows.
