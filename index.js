@@ -226,7 +226,7 @@ RapidMango.prototype.download = function download() {
 
 function RapidMango(options) {
 	options = options || {};
-	options.installPath = options.installed ||
+	options.installPath = options.installPath ||
 		path.resolve(path.dirname(module.parent.filename), "mongo");
 	options.version = options.version ||
 		"3.2.0"
