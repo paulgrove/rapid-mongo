@@ -79,7 +79,7 @@ has ended.
 
 ### dbpath
 
-`data` - The location for `mongod` to store the database.  Defaults to the
+`dbpath` - The location for `mongod` to store the database.  Defaults to the
 `installPath + "/data"`.  This parameter is optional.
 
 ### port
