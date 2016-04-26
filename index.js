@@ -275,6 +275,8 @@ RapidMango.prototype.install = function install() {
 	});
 };
 
+var child = null;
+
 RapidMango.prototype.start = function start() {
 	var self = this;
 	return self.install().then(function () {
@@ -300,7 +302,7 @@ RapidMango.prototype.start = function start() {
 		});
 		var promise = new Promise(function (resolve, reject) {
 			self.emit("debug", "spawning: ", self.options.mongodBin, args);
-			var child = spawn(self.options.mongodBin, args, {
+			child = spawn(self.options.mongodBin, args, {
 				stdio: 'pipe'
 			});
 			child.on('error', function (code, signal) {
@@ -342,5 +344,9 @@ RapidMango.prototype.start = function start() {
 		return promise;
 	});
 };
+
+RapidMango.prototype.stop = function stop() {
+	child.kill()
+}
 
 module.exports = RapidMango;
