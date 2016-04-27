@@ -221,7 +221,7 @@ RapidMango.prototype.download = function download() {
 				});
 			});
 		});
-	});
+	}).bind(this);
 };
 
 function RapidMango(options) {
@@ -273,7 +273,7 @@ RapidMango.prototype.install = function install() {
 				return fs.unlinkAsync(archiveFilename);
 			});
 		});
-	});
+	}).bind(this);
 };
 
 RapidMango.prototype.start = function start() {
@@ -341,7 +341,7 @@ RapidMango.prototype.start = function start() {
 			});
 		});
 		return promise;
-	});
+	}).bind(this);
 };
 
 RapidMango.prototype.stop = function stop() {
@@ -354,7 +354,7 @@ RapidMango.prototype.stop = function stop() {
 			reject(err);
 		});
 		self.child.kill();
-	})
-}
+	}).bind(this);
+};
 
 module.exports = RapidMango;
