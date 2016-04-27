@@ -345,7 +345,16 @@ RapidMango.prototype.start = function start() {
 };
 
 RapidMango.prototype.stop = function stop() {
-	this.child.kill()
+	var self = this;
+	return new Promise(function (resolve, reject) {
+		self.child.on('close', function (code) {
+			resolve(code);
+		});
+		self.child.on('error', function (err) {
+			reject(err);
+		});
+		self.child.kill();
+	})
 }
 
 module.exports = RapidMango;
