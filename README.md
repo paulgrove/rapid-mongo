@@ -174,6 +174,30 @@ rapid.start().then(function (port) {
 }).catch(console.error);
 ```
 
+## stop()
+
+Stop can be used to programaticly end the mongodb process.  The method returns
+a Promise which is resolved with the exit code of the process.
+
+Example:
+
+```javascript
+var RapidMongo = require('./index')
+var rapid = new RapidMongo()
+
+rapid.start()
+  .then((port) => {
+    console.log(`Mongo is running on 127.0.0.1:${port}`)
+    setTimeout(() => {
+      console.log('Stopping mongod')
+      rapid
+        .stop()
+        .then((res) => console.log('mongod stopped with code', res))
+    }, 5000)
+  })
+  .catch(console.error)
+```
+
 After successful installation, the mongo archive will automatically be removed.
 
 ## Events
