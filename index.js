@@ -239,6 +239,7 @@ function RapidMango(options) {
 	options.mongodBin = path.resolve(options.installPath, "bin", "mongod" +
 		(process.platform === "win32" ? ".exe" : ""));
 	this.options = options;
+	this.child = null;
 	return this;
 }
 
@@ -300,21 +301,21 @@ RapidMango.prototype.start = function start() {
 		});
 		var promise = new Promise(function (resolve, reject) {
 			self.emit("debug", "spawning: ", self.options.mongodBin, args);
-			var child = spawn(self.options.mongodBin, args, {
+			self.child = spawn(self.options.mongodBin, args, {
 				stdio: 'pipe'
 			});
-			child.on('error', function (code, signal) {
+			self.child.on('error', function (code, signal) {
 				if (promise.isPending)
 					reject(new Error("Failed to start mongo, child exited with code " + code));
 				self.emit('exit', code, signal);
 			});
-			child.on('exit', function (code, signal) {
+			self.child.on('exit', function (code, signal) {
 				if (promise.isPending)
 					reject(new Error("Mongo child exited with code " + code));
 				self.emit('exit', code, signal);
 			});
 			readline.createInterface({
-				input: child.stdout,
+				input: self.child.stdout,
 				terminal: false
 			}).on("line", function (line) {
 				if (promise.isPending) {
@@ -324,7 +325,7 @@ RapidMango.prototype.start = function start() {
 				self.emit("stdout", line);
 			});
 			readline.createInterface({
-				input: child.stderr,
+				input: self.child.stderr,
 				terminal: false
 			}).on("line", function (line) {
 				self.emit("stderr", line);
@@ -334,7 +335,7 @@ RapidMango.prototype.start = function start() {
 			spawn(process.execPath, [
 					path.resolve(__dirname, "tie-process.js"),
 					process.pid,
-					child.pid
+					self.child.pid
 			], {
 				stdio: 'ignore'
 			});
@@ -342,5 +343,18 @@ RapidMango.prototype.start = function start() {
 		return promise;
 	});
 };
+
+RapidMango.prototype.stop = function stop() {
+	var self = this;
+	return new Promise(function (resolve, reject) {
+		self.child.on('close', function (code) {
+			resolve(code);
+		});
+		self.child.on('error', function (err) {
+			reject(err);
+		});
+		self.child.kill();
+	})
+}
 
 module.exports = RapidMango;
