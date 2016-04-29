@@ -134,9 +134,9 @@ disable these options entirely then set `--dbpath` or `--port` to `false`.
 
 Set `arch` to override the detected architecture, options: `ia32` or `x64`.
 
-### platorm
+### platform
 
-Set `platorm` to override the detected platform, options: `win32`, `darwin`,
+Set `platform` to override the detected platform, options: `win32`, `darwin`,
 `osx`, `linux` or `elementary OS`.
 
 ### httpOpts
