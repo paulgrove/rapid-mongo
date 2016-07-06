@@ -160,8 +160,8 @@ RapidMango.prototype.download = function download() {
 		dl_uri += "/" + name;
 		self.emit("verbose", "Downloading: %s", dl_uri);
 
-		var temp_dir = self.options.downloadDir || os.tmpdir(),
-			downloadDir = path.resolve(temp_dir, 'mongodb-download');
+		var temp_dir = self.options.downloadDir || path.resolve(os.tmpdir(), 'mongodb-download'),
+			downloadDir = path.resolve(temp_dir);
 
 		return fs.mkdirpAsync(downloadDir).then(function () {
 			return new Promise(function (resolve, reject) {
@@ -251,16 +251,21 @@ RapidMango.prototype.install = function install() {
 	self.emit("verbose", "Checking for mongod binary: " +
 			  self.options.mongodBin);
 	if (fs.accessAsync) {
+		self.emit("debug", "using fs.access");
 		fileExists = fs.accessAsync(self.options.mongodBin, fs.F_OK);
 	} else if (fs.statAsync) {
-		fileExists = fs.statAsync(self.options.mongodBin);
+		self.emit("debug", "using fs.stat");
+		fileExists = fs.statAsync(self.options.mongodBin).then(function (stat) {
+			self.emit("debug", stat);
+		});
 	} else if (fs.exists) {
+		self.emit("debug", "using fs.exists");
 		fileExists = new Promise(function (resolve, reject) {
 			fs.exists(function (exists) {
 				if (exists) {
 					resolve();
 				} else {
-					reject();
+					reject(new Error("File does not exist"));
 				}
 			});
 		});
@@ -268,6 +273,7 @@ RapidMango.prototype.install = function install() {
 		return Promise.reject(new Error("Can't find file exists type method, downloading anyway..."));
 	}
 	return fileExists.catch(function (err) {
+		self.emit("debug", err);
 		return Promise.all([
 			self.download(),
 			fs.mkdirpAsync(path.resolve(self.options.installPath))
