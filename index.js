@@ -246,10 +246,28 @@ function RapidMango(options) {
 util.inherits(RapidMango, EventEmitter);
 
 RapidMango.prototype.install = function install() {
-	var self = this;
+	var self = this,
+		fileExists;
 	self.emit("verbose", "Checking for mongod binary: " +
 			  self.options.mongodBin);
-	return fs.accessAsync(self.options.mongodBin, fs.F_OK).catch(function (err) {
+	if (fs.accessAsync) {
+		fileExists = fs.accessAsync(self.options.mongodBin, fs.F_OK);
+	} else if (fs.statAsync) {
+		fileExists = fs.statAsync(self.options.mongodBin);
+	} else if (fs.exists) {
+		fileExists = new Promise(function (resolve, reject) {
+			fs.exists(function (exists) {
+				if (exists) {
+					resolve();
+				} else {
+					reject();
+				}
+			});
+		});
+	} else {
+		return Promise.reject(new Error("Can't find file exists type method, downloading anyway..."));
+	}
+	return fileExists.catch(function (err) {
 		return Promise.all([
 			self.download(),
 			fs.mkdirpAsync(path.resolve(self.options.installPath))
@@ -347,6 +365,10 @@ RapidMango.prototype.start = function start() {
 RapidMango.prototype.stop = function stop() {
 	var self = this;
 	return new Promise(function (resolve, reject) {
+		if (self.child === undefined) {
+			resolve(0);
+			return;
+		}
 		self.child.on('close', function (code) {
 			resolve(code);
 		});
@@ -354,6 +376,7 @@ RapidMango.prototype.stop = function stop() {
 			reject(err);
 		});
 		self.child.kill();
+		delete self.child;
 	}).bind(this);
 };
 
