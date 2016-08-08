@@ -386,4 +386,19 @@ RapidMango.prototype.stop = function stop() {
 	}).bind(this);
 };
 
+RapidMango.prototype.status = function status() {
+	var result = {
+		status: 'stopped',
+		pid: null,
+	}
+
+	if(this.child && this.child.pid) {
+		result.status = 'started'
+		result.pid = this.child.pid
+	}
+
+	return new Promise(function (resolve) {
+		resolve(result)
+	}).bind(this);
+};
 module.exports = RapidMango;
