@@ -1,6 +1,6 @@
 {
   "name": "rapid-mongo",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Lazy MongoDB - download, unpack and run from node",
   "main": "index.js",
   "scripts": {
