@@ -331,11 +331,13 @@ RapidMango.prototype.start = function start() {
 			self.child.on('error', function (code, signal) {
 				if (promise.isPending)
 					reject(new Error("Failed to start mongo, child exited with code " + code));
+				delete self.child;
 				self.emit('exit', code, signal);
 			});
 			self.child.on('exit', function (code, signal) {
 				if (promise.isPending)
 					reject(new Error("Mongo child exited with code " + code));
+				delete self.child;
 				self.emit('exit', code, signal);
 			});
 			readline.createInterface({
@@ -381,8 +383,12 @@ RapidMango.prototype.stop = function stop() {
 		self.child.on('error', function (err) {
 			reject(err);
 		});
-		self.child.kill();
-		delete self.child;
+		try {
+			self.child.kill();
+			delete self.child;
+		} catch (err) {
+			reject(err);
+		}
 	}).bind(this);
 };
 
