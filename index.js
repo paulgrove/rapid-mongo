@@ -14,6 +14,27 @@ var _ = require("lodash"),
 	spawn = require('child_process').spawn,
 	DOWNLOAD_URI = "https://fastdl.mongodb.org";
 
+function RapidMango(options) {
+	options = options || {};
+	options.installPath = options.installPath ||
+		path.resolve(path.dirname(module.parent.filename), "mongo");
+	options.version = options.version ||
+		"3.2.0"
+	options.dbpath = options.dbpath || path.resolve(options.installPath, "data");
+	options.startPort = options.startPort || 6000;
+	options.endPort = options.endPort || 6999;
+	options.args = options.args || {};
+	options.args["--dbpath"] = options.args["--dbpath"] != undefined ?
+		options.args["--dbpath"] : options.dbpath;
+	options.mongodBin = path.resolve(options.installPath, "bin", "mongod" +
+		(process.platform === "win32" ? ".exe" : ""));
+	this.options = options;
+	this.child = null;
+	return this;
+}
+
+util.inherits(RapidMango, EventEmitter);
+
 RapidMango.prototype.download = function download() {
 	var self = this,
 		dl_uri = DOWNLOAD_URI;
@@ -223,27 +244,6 @@ RapidMango.prototype.download = function download() {
 		});
 	}).bind(this);
 };
-
-function RapidMango(options) {
-	options = options || {};
-	options.installPath = options.installPath ||
-		path.resolve(path.dirname(module.parent.filename), "mongo");
-	options.version = options.version ||
-		"3.2.0"
-	options.dbpath = options.dbpath || path.resolve(options.installPath, "data");
-	options.startPort = options.startPort || 6000;
-	options.endPort = options.endPort || 6999;
-	options.args = options.args || {};
-	options.args["--dbpath"] = options.args["--dbpath"] != undefined ?
-		options.args["--dbpath"] : options.dbpath;
-	options.mongodBin = path.resolve(options.installPath, "bin", "mongod" +
-		(process.platform === "win32" ? ".exe" : ""));
-	this.options = options;
-	this.child = null;
-	return this;
-}
-
-util.inherits(RapidMango, EventEmitter);
 
 RapidMango.prototype.install = function install() {
 	var self = this,
