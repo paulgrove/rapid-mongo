@@ -1,7 +1,7 @@
 var _ = require("lodash"),
 	Promise = require("bluebird"),
 	path = require("path"),
-	fs = Promise.promisifyAll(require("fs.extra")),
+	fs = require("fs-extra"),
 	os = require('os'),
 	http = require('https'),
 	getos = Promise.promisify(require('getos')),
