@@ -187,7 +187,7 @@ RapidMango.prototype.download = function download() {
 		var temp_dir = self.options.downloadDir || path.resolve(os.tmpdir(), 'mongodb-download'),
 			downloadDir = path.resolve(temp_dir);
 
-		return fs.mkdirpAsync(downloadDir).then(function () {
+		return fs.mkdirp(downloadDir).then(function () {
 			return new Promise(function (resolve, reject) {
 				self.emit("debug", "download directory: %s", temp_dir);
 				var download_location = path.resolve(downloadDir, name);
@@ -220,7 +220,7 @@ RapidMango.prototype.download = function download() {
 					response.pipe(file);
 					file.on('finish', function() {
 						file.close(function() {
-							fs.renameAsync(temp_download_location, download_location).then(function () {
+							fs.rename(temp_download_location, download_location).then(function () {
 								resolve(download_location);
 							}).catch(function () {
 								reject("Failed to rename temp file");
@@ -253,12 +253,12 @@ RapidMango.prototype.install = function install() {
 		fileExists;
 	self.emit("verbose", "Checking for mongod binary: " +
 			  self.options.mongodBin);
-	if (fs.accessAsync) {
+	if (fs.access) {
 		self.emit("debug", "using fs.access");
-		fileExists = fs.accessAsync(self.options.mongodBin, fs.F_OK);
-	} else if (fs.statAsync) {
+		fileExists = fs.access(self.options.mongodBin, fs.F_OK);
+	} else if (fs.stat) {
 		self.emit("debug", "using fs.stat");
-		fileExists = fs.statAsync(self.options.mongodBin).then(function (stat) {
+		fileExists = fs.stat(self.options.mongodBin).then(function (stat) {
 			self.emit("debug", stat);
 		});
 	} else if (fs.exists) {
@@ -279,7 +279,7 @@ RapidMango.prototype.install = function install() {
 		self.emit("debug", err);
 		return Promise.all([
 			self.download(),
-			fs.mkdirpAsync(path.resolve(self.options.installPath))
+			fs.mkdirp(path.resolve(self.options.installPath))
 		]).then(function(results) {
 			var archiveFilename = results[0],
 				archiveType;
@@ -298,7 +298,7 @@ RapidMango.prototype.install = function install() {
 			Promise.promisifyAll(decomp);
 			return decomp.runAsync().then(function () {
 				if(self.options.deleteTemporaryFiles)
-					return fs.unlinkAsync(archiveFilename);
+					return fs.unlink(archiveFilename);
 			});
 		});
 	}).bind(this);
@@ -307,7 +307,7 @@ RapidMango.prototype.install = function install() {
 RapidMango.prototype.start = function start() {
 	var self = this;
 	return self.install().then(function () {
-		return fs.mkdirpAsync(path.resolve(self.options.args["--dbpath"]))
+		return fs.mkdirp(path.resolve(self.options.args["--dbpath"]))
 	})
 	.then(function () {
 		return self.options.port ||
