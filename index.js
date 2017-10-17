@@ -41,7 +41,7 @@ util.inherits(RapidMango, EventEmitter);
 RapidMango.prototype.download = function download() {
 	var self = this,
 		dl_uri = DOWNLOAD_URI;
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		var platform = self.options.platform || os.platform(),
 			mongo_platform = "";
 		switch(platform) {
@@ -97,7 +97,7 @@ RapidMango.prototype.download = function download() {
 		var name = "mongodb-" + mongo_platform + "-" + mongo_arch;
 
 		if ( mongo_platform === "linux" && mongo_arch !== "i686" ) {
-			return getos().then(function(os) {
+			return getos().then((os) => {
 				self.emit("debug", "os dump", os);
 				if ( /ubuntu/i.test(os.dist) ) {
 					name += "-ubuntu";
@@ -167,7 +167,7 @@ RapidMango.prototype.download = function download() {
 			name += "-" + mongo_version;
 			return resolve([name, mongo_platform]);
 		}
-	}).then(function (results) {
+	}).then((results) => {
 		var mongo_archive = "",
 			name = results[0],
 			mongo_platform = results[1];
@@ -187,8 +187,8 @@ RapidMango.prototype.download = function download() {
 		var temp_dir = self.options.downloadDir || path.resolve(os.tmpdir(), 'mongodb-download'),
 			downloadDir = path.resolve(temp_dir);
 
-		return fs.mkdirp(downloadDir).then(function () {
-			return new Promise(function (resolve, reject) {
+		return fs.mkdirp(downloadDir).then(() => {
+			return new Promise((resolve, reject) => {
 				self.emit("debug", "download directory: %s", temp_dir);
 				var download_location = path.resolve(downloadDir, name);
 				
@@ -212,24 +212,24 @@ RapidMango.prototype.download = function download() {
 				httpOpts.path = download_url.path;
 
 				self.emit("debug", "http self.options:", httpOpts);
-				var request = http.get(httpOpts, function(response) {
+				var request = http.get(httpOpts, (response) => {
 					var cur = 0,
 						len = parseInt(response.headers['content-length'], 10),
 						total = len / 1048576;
 
 					response.pipe(file);
-					file.on('finish', function() {
-						file.close(function() {
-							fs.rename(temp_download_location, download_location).then(function () {
+					file.on('finish', () => {
+						file.close(() => {
+							fs.rename(temp_download_location, download_location).then(() => {
 								resolve(download_location);
-							}).catch(function () {
+							}).catch(() => {
 								reject("Failed to rename temp file");
 							});
 						});
 					});
 
 					var last_percent = 0;
-					response.on("data", function(chunk) {
+					response.on("data", (chunk) => {
 						cur += chunk.length;
 						var percent_complete = (100.0 * cur / len).toFixed(1);
 						var mb_complete = (cur / 1048576).toFixed(1);
@@ -238,14 +238,14 @@ RapidMango.prototype.download = function download() {
 						last_percent = percent_complete;
 					});
 
-					request.on("error", function(e){
+					request.on("error", (e) => {
 						self.emit("debug", "request error:", e);
 						reject(e);
 					});
 				});
 			});
 		});
-	}).bind(this);
+	});
 };
 
 RapidMango.prototype.install = function install() {
@@ -258,13 +258,13 @@ RapidMango.prototype.install = function install() {
 		fileExists = fs.access(self.options.mongodBin, fs.F_OK);
 	} else if (fs.stat) {
 		self.emit("debug", "using fs.stat");
-		fileExists = fs.stat(self.options.mongodBin).then(function (stat) {
+		fileExists = fs.stat(self.options.mongodBin).then((stat) => {
 			self.emit("debug", stat);
 		});
 	} else if (fs.exists) {
 		self.emit("debug", "using fs.exists");
-		fileExists = new Promise(function (resolve, reject) {
-			fs.exists(function (exists) {
+		fileExists = new Promise((resolve, reject) => {
+			fs.exists((exists) => {
 				if (exists) {
 					resolve();
 				} else {
@@ -275,12 +275,12 @@ RapidMango.prototype.install = function install() {
 	} else {
 		return Promise.reject(new Error("Can't find file exists type method, downloading anyway..."));
 	}
-	return fileExists.catch(function (err) {
+	return fileExists.catch((err) => {
 		self.emit("debug", err);
 		return Promise.all([
 			self.download(),
 			fs.mkdirp(path.resolve(self.options.installPath))
-		]).then(function(results) {
+		]).then((results) => {
 			var archiveFilename = results[0],
 				archiveType;
 			self.emit("verbose", "Decompressing archive...");
@@ -296,30 +296,30 @@ RapidMango.prototype.install = function install() {
 					strip: 1
 				}));
 			Promise.promisifyAll(decomp);
-			return decomp.runAsync().then(function () {
+			return decomp.runAsync().then(() => {
 				if(self.options.deleteTemporaryFiles)
 					return fs.unlink(archiveFilename);
 			});
 		});
-	}).bind(this);
+	});
 };
 
 RapidMango.prototype.start = function start() {
 	var self = this;
-	return self.install().then(function () {
+	return self.install().then(() => {
 		return fs.mkdirp(path.resolve(self.options.args["--dbpath"]))
 	})
-	.then(function () {
+	.then(() => {
 		return self.options.port ||
 			findPort(self.options.startPort, self.options.endPort);
 	})
-	.then(function (port) {
+	.then((port) => {
 		self.emit("verbose", "Starting mongod...");
 		var args = [];
 		self.options.args["--port"] =
 			self.options.args["--port"] !== undefined ?
 				self.options.args["--port"] : port;
-		_.map(self.options.args, function (val, key) {
+		_.map(self.options.args, (val, key) => {
 			if (val === true) {
 				args.push(key);
 			} else if (val !== false) {
@@ -327,18 +327,18 @@ RapidMango.prototype.start = function start() {
 				args.push(val);
 			}
 		});
-		var promise = new Promise(function (resolve, reject) {
+		var promise = new Promise((resolve, reject) => {
 			self.emit("debug", "spawning: ", self.options.mongodBin, args);
 			self.child = spawn(self.options.mongodBin, args, {
 				stdio: 'pipe'
 			});
-			self.child.on('error', function (code, signal) {
+			self.child.on('error', (code, signal) => {
 				if (promise.isPending)
 					reject(new Error("Failed to start mongo, child exited with code " + code));
 				delete self.child;
 				self.emit('exit', code, signal);
 			});
-			self.child.on('exit', function (code, signal) {
+			self.child.on('exit', (code, signal) => {
 				if (promise.isPending)
 					reject(new Error("Mongo child exited with code " + code));
 				delete self.child;
@@ -347,7 +347,7 @@ RapidMango.prototype.start = function start() {
 			readline.createInterface({
 				input: self.child.stdout,
 				terminal: false
-			}).on("line", function (line) {
+			}).on("line", (line) => {
 				if (promise.isPending) {
 					if (/waiting for connections/.test(line))
 						resolve(self.options.args["--port"]);
@@ -357,7 +357,7 @@ RapidMango.prototype.start = function start() {
 			readline.createInterface({
 				input: self.child.stderr,
 				terminal: false
-			}).on("line", function (line) {
+			}).on("line", (line) => {
 				self.emit("stderr", line);
 			});
 			// tie process, if parent dies, kill child.
@@ -371,20 +371,20 @@ RapidMango.prototype.start = function start() {
 			});
 		});
 		return promise;
-	}).bind(this);
+	});
 };
 
 RapidMango.prototype.stop = function stop() {
 	var self = this;
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		if (self.child === undefined) {
 			resolve(0);
 			return;
 		}
-		self.child.on('close', function (code) {
+		self.child.on('close', (code) => {
 			resolve(code);
 		});
-		self.child.on('error', function (err) {
+		self.child.on('error', (err) => {
 			reject(err);
 		});
 		try {
@@ -393,7 +393,7 @@ RapidMango.prototype.stop = function stop() {
 		} catch (err) {
 			reject(err);
 		}
-	}).bind(this);
+	});
 };
 
 RapidMango.prototype.status = function status() {
@@ -407,8 +407,8 @@ RapidMango.prototype.status = function status() {
 		result.pid = this.child.pid
 	}
 
-	return new Promise(function (resolve) {
+	return new Promise((resolve) => {
 		resolve(result)
-	}).bind(this);
+	});
 };
 module.exports = RapidMango;
