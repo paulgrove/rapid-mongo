@@ -24,6 +24,9 @@ function RapidMango(options) {
 	options.startPort = options.startPort || 6000;
 	options.endPort = options.endPort || 6999;
 	options.args = options.args || {};
+	options.deleteTemporaryFiles = options.deleteTemporaryFiles === undefined ?
+		false : options.deleteTemporaryFiles;
+
 	options.args["--dbpath"] = options.args["--dbpath"] != undefined ?
 		options.args["--dbpath"] : options.dbpath;
 	options.mongodBin = path.resolve(options.installPath, "bin", "mongod" +
@@ -294,7 +297,8 @@ RapidMango.prototype.install = function install() {
 				}));
 			Promise.promisifyAll(decomp);
 			return decomp.runAsync().then(function () {
-				return fs.unlinkAsync(archiveFilename);
+				if(self.options.deleteTemporaryFiles)
+					return fs.unlinkAsync(archiveFilename);
 			});
 		});
 	}).bind(this);

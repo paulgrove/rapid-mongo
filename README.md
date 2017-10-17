@@ -3,6 +3,9 @@ MongoDB for the lazy - Download, unpack and run mongodb from your program.
 
 Supports most Linux, OSX and Win32.
 
+As of version `1.1.0` temporary download files won't be deleted after install
+unless `deleteTemporaryFiles` option is set to `true`.
+
 ## Synopsis
 
 *short example*
@@ -81,6 +84,14 @@ has ended.
 
 `dbpath` - The location for `mongod` to store the database.  Defaults to the
 `installPath + "/data"`.  This parameter is optional.
+
+### downloadDir
+
+`downloadDir` - Location to download mongo package to.
+
+### deleteTemporaryFiles
+
+`deleteTemporaryFiles` - Boolean, set to true to remove files after install.
 
 ### port
 
